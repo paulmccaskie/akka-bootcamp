@@ -5,15 +5,15 @@ namespace WinTail
 {
     /// <summary>
     /// Actor responsible for reading FROM the console. 
-    /// Also responsible for calling <see cref="ActorSystem.Shutdown"/>.
+    /// Also responsible for calling <see cref="ActorSystem.Terminate"/>.
     /// </summary>
     class ConsoleReaderActor : UntypedActor
     {
         public const string StartCommand = "start";
         public const string ExitCommand = "exit";
-        private readonly ActorRef _consoleWriterActor;
+        private readonly IActorRef _consoleWriterActor;
 
-        public ConsoleReaderActor(ActorRef consoleWriterActor)
+        public ConsoleReaderActor(IActorRef consoleWriterActor)
         {
             _consoleWriterActor = consoleWriterActor;
         }
@@ -55,10 +55,10 @@ namespace WinTail
                 // received input was blank
                 Self.Tell(new Messages.NullInputError("No input received."));
             }
-            else if (message.Equals(ExitCommand))
+            else if (String.Equals(message, ExitCommand, StringComparison.OrdinalIgnoreCase))
             {
                 // shut down the entire actor system (allows the process to exit)
-                Context.System.Shutdown();
+                Context.System.Terminate();
             }
             else
             {

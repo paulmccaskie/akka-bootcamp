@@ -4,8 +4,8 @@ using Akka.Actor;
 namespace WinTail
 {
     /// <summary>
-    /// Actor responsible for reading FROM the console. 
-    /// Also responsible for calling <see cref="ActorSystem.Shutdown"/>.
+    /// Actor responsible for reading FROM the console.
+    /// Also responsible for calling <see cref="ActorSystem.Terminate"/>.
     /// </summary>
     class ConsoleReaderActor : UntypedActor
     {
@@ -37,15 +37,15 @@ namespace WinTail
         private void GetAndValidateInput()
         {
             var message = Console.ReadLine();
-            if (!string.IsNullOrEmpty(message) && message.ToLowerInvariant().Equals(ExitCommand))
+            if (!string.IsNullOrEmpty(message) && String.Equals(message, ExitCommand, StringComparison.OrdinalIgnoreCase))
             {
                 // if user typed ExitCommand, shut down the entire actor system (allows the process to exit)
-                Context.System.Shutdown();
+                Context.System.Terminate();
                 return;
             }
 
             // otherwise, just send the message off for validation
-            Context.ActorSelection("/user/validationActor").Tell(message);
+            Context.ActorSelection("akka://MyActorSystem/user/validationActor").Tell(message);
         }
         #endregion
     }
